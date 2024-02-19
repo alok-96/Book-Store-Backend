@@ -1,15 +1,11 @@
 import express from "express";
 import mysql from "mysql";
 import cors from "cors";
-import bodyParser from "body-parser";
 
 const app = express();
 app.use(express.json()); // middleware to send form data
 app.use(cors());
-
-app.use(bodyParser.json({ limit: "50mb", extended: true }));
-// app.use(bodyParser.json({ type: 'application/*+json' }))
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -40,14 +36,14 @@ app.get("/books/:id", (req, res) => {
 });
 
 app.post("/books", (req, res) => {
-  const q = "INSERT INTO BOOKS (TITLE, DESCRIPTION, PRICE, COVER) VALUES (?)";
+  const q = "INSERT INTO BOOKS (TITLE, AUTHOR, PRICE, COVER) VALUES (?)";
   const values = [
     req.body.title,
-    req.body.description,
+    req.body.author,
     req.body.price,
     req.body.cover,
   ];
-  console.log(values);
+  console.log("req.file = ", req.body);
   db.query(q, [values], (err, data) => {
     if (!err) return res.json("Book has been added successfully.");
     else console.log(err);
@@ -57,10 +53,10 @@ app.post("/books", (req, res) => {
 app.put("/books/:id", (req, res) => {
   const bookId = req.params.id;
   const q =
-    "UPDATE BOOKS SET TITLE = ?, DESCRIPTION = ?, COVER = ?, PRICE = ? WHERE ID = ?";
+    "UPDATE BOOKS SET TITLE = ?, AUTHOR = ?, COVER = ?, PRICE = ? WHERE ID = ?";
   const values = [
     req.body.title,
-    req.body.description,
+    req.body.author,
     req.body.cover,
     req.body.price,
   ];
